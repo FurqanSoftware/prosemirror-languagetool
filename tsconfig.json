@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["es2018", "dom", "scripthost"],
+    "module": "es2020",
+    "target": "es5",
+    "declaration": true,
+    "outDir": "./dist",
+    "moduleResolution": "node"
+  }
+}
