@@ -2,7 +2,7 @@
 
 A [ProseMirror](https://prosemirror.net/) plugin for grammar and spelling checking using [LanguageTool](https://languagetool.org/).
 
-Highlights errors with colored wavy underlines (red for misspellings, orange for grammar issues) and shows correction suggestions in tooltips.
+Highlights errors with colored wavy underlines (red for misspellings, orange for grammar issues). Optionally shows a popup with correction suggestions that can be applied with a click.
 
 ## Install
 
@@ -50,6 +50,19 @@ Or link it directly:
 | `languageToolCheckURL` | `string` | Yes | URL to the LanguageTool `/v2/check` endpoint. |
 | `language` | `string` | Yes | Language code (e.g. `"en-US"`, `"de-DE"`). |
 | `languageToolCheck` | `(text: string, language: string) => Promise<CheckResponse>` | No | Custom check function. Overrides the default HTTP request. |
+| `actionPopup` | `boolean` | No | Enable a click-to-fix popup on highlighted errors. Defaults to `false`. |
+
+### Action popup
+
+When `actionPopup` is enabled, clicking on a highlighted error shows a popup with the error message and up to 5 replacement suggestions. Clicking a suggestion applies the fix. The popup dismisses on click outside or pressing Escape.
+
+```javascript
+grammarPlugin({
+  languageToolCheckURL: "https://api.languagetoolplus.com/v2/check",
+  language: "en-US",
+  actionPopup: true,
+});
+```
 
 ### Custom check function
 

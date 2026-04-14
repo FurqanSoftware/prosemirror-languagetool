@@ -5,3 +5,39 @@
 .ProseMirror-grammar-orange {
     text-decoration: orange wavy underline 1px;
 }
+
+.ProseMirror-lt-popup {
+    position: absolute;
+    z-index: 20;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    max-width: 300px;
+    font-size: 14px;
+}
+
+.ProseMirror-lt-popup-message {
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.ProseMirror-lt-popup-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ProseMirror-lt-popup-suggestion {
+    padding: 2px 8px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.ProseMirror-lt-popup-suggestion:hover {
+    background: #e0e0f0;
+}

@@ -1,18 +1,27 @@
-import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import type { Node } from "prosemirror-model";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import type { CheckResponse, Match } from "./languagetool";
 import { debounce } from "./fn";
 
+interface ActiveMatch {
+  from: number;
+  to: number;
+  message: string;
+  replacements: { value: string }[];
+}
+
 interface PluginState {
   lint: ((chunks: Chunk[]) => void) | null;
   decorationSet: DecorationSet;
+  activeMatch: ActiveMatch | null;
 }
 
 interface PluginOptions {
   languageToolCheckURL: string;
   languageToolCheck?(text: string, language: string): Promise<CheckResponse>;
   language: string;
+  actionPopup?: boolean;
 }
 
 const pluginKey = new PluginKey("grammar");
@@ -25,6 +34,7 @@ export const grammarPlugin = (options: PluginOptions) =>
         return {
           lint: null,
           decorationSet: DecorationSet.empty,
+          activeMatch: null,
         };
       },
       apply(tr, value, oldState, newState) {
@@ -34,6 +44,7 @@ export const grammarPlugin = (options: PluginOptions) =>
           value = {
             ...value,
             decorationSet: value.decorationSet.map(tr.mapping, doc),
+            activeMatch: null,
           };
         }
         const meta = tr.getMeta(pluginKey);
@@ -47,6 +58,9 @@ export const grammarPlugin = (options: PluginOptions) =>
               decorationSet: DecorationSet.create(doc, [...meta.decorations]),
             };
           }
+          if ("activeMatch" in meta) {
+            value = { ...value, activeMatch: meta.activeMatch };
+          }
         }
         return value;
       },
@@ -58,18 +72,143 @@ export const grammarPlugin = (options: PluginOptions) =>
       decorations(state) {
         return this.getState(state)?.decorationSet;
       },
+      handleClick: options.actionPopup
+        ? (view: EditorView, pos: number) => {
+            const state = pluginKey.getState(view.state);
+            if (!state) return false;
+            const decos = state.decorationSet.find(pos, pos);
+            const deco = decos.find((d) => d.spec.match);
+            if (deco) {
+              view.dispatch(
+                view.state.tr.setMeta(pluginKey, {
+                  activeMatch: {
+                    from: deco.from,
+                    to: deco.to,
+                    message: deco.spec.match.message,
+                    replacements: deco.spec.match.replacements,
+                  },
+                }),
+              );
+              return true;
+            }
+            if (state.activeMatch) {
+              view.dispatch(
+                view.state.tr.setMeta(pluginKey, { activeMatch: null }),
+              );
+            }
+            return false;
+          }
+        : undefined,
     },
     view(view) {
-      if (pluginKey.getState(view.state).lint) return {};
-      const lint = debounce(makeLinter(view, options), 1000);
-      view.dispatch(
-        view.state.tr.setMeta(pluginKey, {
-          lint,
-        }),
-      );
-      if (view.state.doc.textContent.trim() != "")
-        lint(extractChunks(view.state.doc));
-      return {};
+      let tooltip: HTMLElement | null = null;
+
+      const removeTooltip = () => {
+        if (tooltip) {
+          tooltip.remove();
+          tooltip = null;
+        }
+      };
+
+      let onDocMousedown: ((e: MouseEvent) => void) | null = null;
+      let onKeydown: ((e: KeyboardEvent) => void) | null = null;
+
+      if (options.actionPopup) {
+        onDocMousedown = (e: MouseEvent) => {
+          if (tooltip && !tooltip.contains(e.target as globalThis.Node)) {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, { activeMatch: null }),
+            );
+          }
+        };
+
+        onKeydown = (e: KeyboardEvent) => {
+          if (
+            e.key === "Escape" &&
+            pluginKey.getState(view.state)?.activeMatch
+          ) {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, { activeMatch: null }),
+            );
+          }
+        };
+
+        document.addEventListener("mousedown", onDocMousedown);
+        view.dom.addEventListener("keydown", onKeydown);
+      }
+
+      if (!pluginKey.getState(view.state).lint) {
+        const lint = debounce(makeLinter(view, options), 1000);
+        view.dispatch(
+          view.state.tr.setMeta(pluginKey, {
+            lint,
+          }),
+        );
+        if (view.state.doc.textContent.trim() != "")
+          lint(extractChunks(view.state.doc));
+      }
+
+      return {
+        update(view) {
+          if (!options.actionPopup) return;
+
+          const state = pluginKey.getState(view.state);
+          if (!state?.activeMatch) {
+            removeTooltip();
+            return;
+          }
+
+          const { activeMatch } = state;
+
+          removeTooltip();
+          tooltip = document.createElement("div");
+          tooltip.className = "ProseMirror-lt-popup";
+
+          const msg = document.createElement("div");
+          msg.className = "ProseMirror-lt-popup-message";
+          msg.textContent = activeMatch.message;
+          tooltip.appendChild(msg);
+
+          if (activeMatch.replacements.length > 0) {
+            const suggestions = document.createElement("div");
+            suggestions.className = "ProseMirror-lt-popup-suggestions";
+            activeMatch.replacements.slice(0, 5).forEach(({ value }) => {
+              const btn = document.createElement("button");
+              btn.className = "ProseMirror-lt-popup-suggestion";
+              btn.textContent = value;
+              btn.type = "button";
+              btn.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                view.dispatch(
+                  view.state.tr.insertText(
+                    value,
+                    activeMatch.from,
+                    activeMatch.to,
+                  ),
+                );
+                view.focus();
+              });
+              suggestions.appendChild(btn);
+            });
+            tooltip.appendChild(suggestions);
+          }
+
+          const parent = view.dom.offsetParent || view.dom;
+          const parentRect = parent.getBoundingClientRect();
+          const coords = view.coordsAtPos(activeMatch.from);
+          tooltip.style.left = `${coords.left - parentRect.left}px`;
+          tooltip.style.top = `${coords.bottom - parentRect.top + 16}px`;
+
+          parent.appendChild(tooltip);
+        },
+        destroy() {
+          removeTooltip();
+          if (onDocMousedown)
+            document.removeEventListener("mousedown", onDocMousedown);
+          if (onKeydown)
+            view.dom.removeEventListener("keydown", onKeydown);
+        },
+      };
     },
   });
 
@@ -110,7 +249,11 @@ interface Mapping {
   pos: number;
 }
 
-const makeDecorations = (matches: Match[], mapping: Mapping[]) => {
+const makeDecorations = (
+  matches: Match[],
+  mapping: Mapping[],
+  actionPopup: boolean,
+) => {
   const decorations: Decoration[] = [];
   matches.forEach((match) => {
     const map = mapping.find(
@@ -120,33 +263,39 @@ const makeDecorations = (matches: Match[], mapping: Mapping[]) => {
       return;
     }
     const from = map.pos + match.offset - map.from;
-    const { title, color } = processMatch(match);
-    const deco = Decoration.inline(from, from + match.length, {
+    const color = match.rule.issueType === "misspelling" ? "red" : "orange";
+    const attrs: Record<string, string> = {
       class: `ProseMirror-grammar ProseMirror-grammar-${color}`,
-      title,
+    };
+    if (!actionPopup) {
+      let title = match.message;
+      if (
+        match.rule.issueType === "misspelling" &&
+        match.replacements.length > 0
+      ) {
+        title = `${match.message} Did you mean to type "${match.replacements[0].value}"?`;
+      }
+      attrs.title = title;
+    }
+    const deco = Decoration.inline(from, from + match.length, attrs, {
+      match: {
+        message: match.message,
+        replacements: match.replacements,
+      },
     });
     decorations.push(deco);
   });
   return decorations;
 };
 
-const processMatch = (match: Match) => {
-  let title = match.message,
-    color = "orange";
-  switch (match.rule.issueType) {
-    case "misspelling":
-      color = "red";
-      if (match.replacements.length > 0) {
-        title = `${match.message} Did you mean to type "${match.replacements[0].value}?"`;
-      }
-      break;
-  }
-  return { title, color };
-};
-
 const makeLinter = (
   view: EditorView,
-  { languageToolCheckURL, languageToolCheck, language }: PluginOptions,
+  {
+    languageToolCheckURL,
+    languageToolCheck,
+    language,
+    actionPopup,
+  }: PluginOptions,
 ) => {
   let aborter: AbortController | null;
 
@@ -187,7 +336,7 @@ const makeLinter = (
       .then(({ matches }) => {
         view.dispatch(
           view.state.tr.setMeta(pluginKey, {
-            decorations: makeDecorations(matches, mapping),
+            decorations: makeDecorations(matches, mapping, !!actionPopup),
           }),
         );
       })

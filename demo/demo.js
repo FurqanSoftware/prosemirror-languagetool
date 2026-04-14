@@ -24,6 +24,7 @@ const view = new EditorView(document.getElementById("editor"), {
         //       method: "GET",
         //     },
         //   ),
+        actionPopup: true,
       }),
     ],
   }),
