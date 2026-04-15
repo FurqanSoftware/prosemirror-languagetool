@@ -4,6 +4,8 @@ A [ProseMirror](https://prosemirror.net/) plugin for grammar and spelling checki
 
 Highlights errors with colored wavy underlines (red for misspellings, orange for grammar issues). Optionally shows a popup with correction suggestions that can be applied with a click.
 
+[Live Demo](https://furqansoftware.github.io/prosemirror-languagetool/)
+
 ## Install
 
 ```bash
