@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-languagetool",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "LanguageTool Plugin for ProseMirror",
   "license": "BSD-3-Clause",
   "author": "Mahmud Ridwan <m@hjr265.me>",
