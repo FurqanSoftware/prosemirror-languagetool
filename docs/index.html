@@ -1,380 +1,388 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>prosemirror-languagetool</title>
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-      }
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>prosemirror-languagetool</title>
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen, Ubuntu, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-        color: #24292f;
-        line-height: 1.6;
-      }
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen, Ubuntu, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #fff;
+                color: #24292f;
+                line-height: 1.6;
+            }
 
-      a {
-        color: #0099e5;
-        text-decoration: none;
-      }
+            a {
+                color: #0099e5;
+                text-decoration: none;
+            }
 
-      a:hover {
-        text-decoration: underline;
-      }
+            a:hover {
+                text-decoration: underline;
+            }
 
-      .hero {
-        background: linear-gradient(135deg, #0099e5 0%, #006daa 100%);
-        color: #fff;
-        padding: 48px 24px;
-        text-align: center;
-      }
+            .hero {
+                background: linear-gradient(135deg, #0099e5 0%, #006daa 100%);
+                color: #fff;
+                padding: 48px 24px;
+                text-align: center;
+            }
 
-      .hero h1 {
-        font-size: 2em;
-        margin: 0 0 8px;
-        font-weight: 700;
-      }
+            .hero h1 {
+                font-size: 2em;
+                margin: 0 0 8px;
+                font-weight: 700;
+            }
 
-      .hero p {
-        margin: 0 0 20px;
-        font-size: 1.1em;
-        opacity: 0.9;
-      }
+            .hero p {
+                margin: 0 0 20px;
+                font-size: 1.1em;
+                opacity: 0.9;
+            }
 
-      .hero-links {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
+            .hero-links {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
 
-      .hero-links a {
-        display: inline-block;
-        padding: 8px 20px;
-        border-radius: 6px;
-        font-size: 0.9em;
-        font-weight: 600;
-        text-decoration: none;
-        transition: opacity 0.15s;
-      }
+            .hero-links a {
+                display: inline-block;
+                padding: 8px 20px;
+                border-radius: 6px;
+                font-size: 0.9em;
+                font-weight: 600;
+                text-decoration: none;
+                transition: opacity 0.15s;
+            }
 
-      .hero-links a:hover {
-        opacity: 0.85;
-      }
+            .hero-links a:hover {
+                opacity: 0.85;
+            }
 
-      .btn-primary {
-        background: #fff;
-        color: #0099e5;
-      }
+            .btn-primary {
+                background: #fff;
+                color: #0099e5;
+            }
 
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.15);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
 
-      .container {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 32px 24px;
-      }
+            .container {
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 32px 24px;
+            }
 
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin: 0 0 40px;
-      }
+            .features-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+                margin: 0 0 40px;
+            }
 
-      .feature-card {
-        padding: 16px;
-        border-radius: 8px;
-        background: #f6f8fa;
-        text-align: center;
-      }
+            .feature-card {
+                padding: 16px;
+                border-radius: 8px;
+                background: #f6f8fa;
+                text-align: center;
+            }
 
-      .feature-card .emoji {
-        display: block;
-        font-size: 1.6em;
-        text-align: center;
-        margin-bottom: 8px;
-      }
+            .feature-card .emoji {
+                display: block;
+                font-size: 1.6em;
+                text-align: center;
+                margin-bottom: 8px;
+            }
 
-      .feature-card strong {
-        display: block;
-        margin-bottom: 4px;
-      }
+            .feature-card strong {
+                display: block;
+                margin-bottom: 4px;
+            }
 
-      .feature-card p {
-        margin: 0;
-        font-size: 0.85em;
-        color: #57606a;
-      }
+            .feature-card p {
+                margin: 0;
+                font-size: 0.85em;
+                color: #57606a;
+            }
 
-      h2 {
-        font-size: 1.4em;
-        margin: 0 0 8px;
-        color: #24292f;
-      }
+            h2 {
+                font-size: 1.4em;
+                margin: 0 0 8px;
+                color: #24292f;
+            }
 
-      .demo-hint {
-        margin: 0 0 12px;
-        font-size: 0.9em;
-        color: #57606a;
-      }
+            .demo-hint {
+                margin: 0 0 12px;
+                font-size: 0.9em;
+                color: #57606a;
+            }
 
-      .demo-editor {
-        border: 1px solid #d0d7de;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      }
+            .demo-editor {
+                border: 1px solid #d0d7de;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #fff;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            }
 
-      .demo-editor .ProseMirror {
-        min-height: 120px;
-        padding: 16px;
-        outline: none;
-      }
+            .demo-editor .ProseMirror {
+                min-height: 120px;
+                padding: 16px;
+                outline: none;
+            }
 
-      .demo-note {
-        margin: 12px 0 0;
-        font-size: 0.8em;
-        color: #8b949e;
-      }
+            .demo-note {
+                margin: 12px 0 0;
+                font-size: 0.8em;
+                color: #8b949e;
+            }
 
-      .demo-note a {
-        color: #8b949e;
-      }
+            .demo-note a {
+                color: #8b949e;
+            }
 
-      .demo-note a:hover {
-        color: #24292f;
-      }
+            .demo-note a:hover {
+                color: #24292f;
+            }
 
-      .ProseMirror-menubar {
-        border-bottom: 1px solid #d0d7de;
-      }
+            .ProseMirror-menubar {
+                border-bottom: 1px solid #d0d7de;
+            }
 
-      .quick-start {
-        margin: 48px 0 0;
-      }
+            .quick-start {
+                margin: 48px 0 0;
+            }
 
-      .quick-start h2 {
-        margin: 0 0 16px;
-      }
+            .quick-start h2 {
+                margin: 0 0 16px;
+            }
 
-      .step {
-        margin: 0 0 24px;
-      }
+            .step {
+                margin: 0 0 24px;
+            }
 
-      .step h3 {
-        font-size: 1em;
-        margin: 0 0 8px;
-        color: #24292f;
-      }
+            .step h3 {
+                font-size: 1em;
+                margin: 0 0 8px;
+                color: #24292f;
+            }
 
-      .step p {
-        margin: 0 0 8px;
-        font-size: 0.9em;
-        color: #57606a;
-      }
+            .step p {
+                margin: 0 0 8px;
+                font-size: 0.9em;
+                color: #57606a;
+            }
 
-      pre {
-        margin: 0;
-        padding: 16px;
-        background: #f6f8fa;
-        border: 1px solid #d0d7de;
-        border-radius: 8px;
-        overflow-x: auto;
-        font-size: 0.85em;
-        line-height: 1.5;
-      }
+            pre {
+                margin: 0;
+                padding: 16px;
+                background: #f6f8fa;
+                border: 1px solid #d0d7de;
+                border-radius: 8px;
+                overflow-x: auto;
+                font-size: 0.85em;
+                line-height: 1.5;
+            }
 
-      code {
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
-          monospace;
-        font-size: 0.9em;
-      }
+            code {
+                font-family:
+                    "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+                    monospace;
+                font-size: 0.9em;
+            }
 
-      pre code {
-        font-size: inherit;
-      }
+            pre code {
+                font-size: inherit;
+            }
 
-      footer {
-        margin-top: 48px;
-        padding: 24px;
-        text-align: center;
-        font-size: 0.85em;
-        color: #8b949e;
-        border-top: 1px solid #d0d7de;
-      }
+            footer {
+                margin-top: 48px;
+                padding: 24px;
+                text-align: center;
+                font-size: 0.85em;
+                color: #8b949e;
+                border-top: 1px solid #d0d7de;
+            }
 
-      footer a {
-        color: #0099e5;
-        text-decoration: none;
-      }
+            footer a {
+                color: #0099e5;
+                text-decoration: none;
+            }
 
-      footer a:hover {
-        text-decoration: underline;
-      }
+            footer a:hover {
+                text-decoration: underline;
+            }
 
-      .ProseMirror-grammar-red {
-        text-decoration: red wavy underline 1px;
-      }
+            .ProseMirror-grammar-red {
+                text-decoration: red wavy underline 1px;
+            }
 
-      .ProseMirror-grammar-orange {
-        text-decoration: orange wavy underline 1px;
-      }
+            .ProseMirror-grammar-orange {
+                text-decoration: orange wavy underline 1px;
+            }
 
-      .ProseMirror-lt-popup {
-        position: absolute;
-        z-index: 20;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        max-width: 300px;
-        font-size: 14px;
-      }
+            .ProseMirror-lt-popup {
+                position: absolute;
+                z-index: 20;
+                background: white;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                max-width: 300px;
+                font-size: 14px;
+            }
 
-      .ProseMirror-lt-popup-message {
-        margin-bottom: 6px;
-        color: #333;
-      }
+            .ProseMirror-lt-popup-message {
+                margin-bottom: 6px;
+                color: #333;
+            }
 
-      .ProseMirror-lt-popup-suggestions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
+            .ProseMirror-lt-popup-suggestions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
 
-      .ProseMirror-lt-popup-suggestion {
-        padding: 2px 8px;
-        background: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 13px;
-      }
+            .ProseMirror-lt-popup-suggestion {
+                padding: 2px 8px;
+                background: #f0f0f0;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 13px;
+            }
 
-      .ProseMirror-lt-popup-suggestion:hover {
-        background: #e0e0f0;
-      }
-    </style>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/prosemirror-view@1/style/prosemirror.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/prosemirror-menu@1/style/menu.min.css"
-    />
-  </head>
-  <body>
-    <div class="hero">
-      <h1>prosemirror-languagetool</h1>
-      <p>
-        LanguageTool plugin for ProseMirror. Grammar and spelling checks with
-        inline error highlighting and click-to-fix suggestions.
-      </p>
-      <div class="hero-links">
-        <a
-          class="btn-primary"
-          href="https://www.npmjs.com/package/prosemirror-languagetool"
-          >npm</a
-        >
-        <a
-          class="btn-secondary"
-          href="https://git.furqansoftware.net/toph/prosemirror-languagetool"
-          >Source</a
-        >
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="features-grid">
-        <div class="feature-card">
-          <span class="emoji">&#x1F4DD;</span>
-          <strong>Grammar Checking</strong>
-          <p>Detects grammar issues with orange wavy underlines.</p>
+            .ProseMirror-lt-popup-suggestion:hover {
+                background: #e0e0f0;
+            }
+        </style>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/prosemirror-view@1/style/prosemirror.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/prosemirror-menu@1/style/menu.min.css"
+        />
+    </head>
+    <body>
+        <div class="hero">
+            <h1>prosemirror-languagetool</h1>
+            <p>
+                LanguageTool plugin for ProseMirror. Grammar and spelling checks
+                with inline error highlighting and click-to-fix suggestions.
+            </p>
+            <div class="hero-links">
+                <a
+                    class="btn-primary"
+                    href="https://www.npmjs.com/package/prosemirror-languagetool"
+                    >npm install</a
+                >
+                <a
+                    class="btn-secondary"
+                    href="https://git.furqansoftware.net/toph/prosemirror-languagetool"
+                    >GitHub</a
+                >
+            </div>
         </div>
-        <div class="feature-card">
-          <span class="emoji">&#x1F524;</span>
-          <strong>Spell Checking</strong>
-          <p>Highlights misspellings with red wavy underlines.</p>
-        </div>
-        <div class="feature-card">
-          <span class="emoji">&#x1F4A1;</span>
-          <strong>Click-to-Fix</strong>
-          <p>Click an error to see suggestions and apply fixes instantly.</p>
-        </div>
-        <div class="feature-card">
-          <span class="emoji">&#x26A1;</span>
-          <strong>Debounced</strong>
-          <p>Checks are debounced to avoid excessive API calls.</p>
-        </div>
-      </div>
 
-      <div class="demo-section">
-        <h2>Live Demo</h2>
-        <p class="demo-hint">
-          Try editing the text below. Click on underlined errors to see
-          suggestions.
-        </p>
-        <div class="demo-editor">
-          <div id="editor"></div>
-          <div id="content" style="display: none">
-            <p>This is embarassing. But your always welcome.</p>
-          </div>
-        </div>
-        <p class="demo-note">
-          Grammar and spelling checks powered by
-          <a href="https://languagetool.org/">LanguageTool</a>.
-        </p>
-      </div>
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="emoji">&#x1F4DD;</span>
+                    <strong>Grammar Checking</strong>
+                    <p>Detects grammar issues with orange wavy underlines.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">&#x1F524;</span>
+                    <strong>Spell Checking</strong>
+                    <p>Highlights misspellings with red wavy underlines.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">&#x1F4A1;</span>
+                    <strong>Click-to-Fix</strong>
+                    <p>
+                        Click an error to see suggestions and apply fixes
+                        instantly.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">&#x26A1;</span>
+                    <strong>Debounced</strong>
+                    <p>Checks are debounced to avoid excessive API calls.</p>
+                </div>
+            </div>
 
-      <div class="quick-start">
-        <h2>Quick Start</h2>
-        <div class="step">
-          <h3>1. Install the package</h3>
-          <pre><code>npm install prosemirror-languagetool</code></pre>
-        </div>
-        <div class="step">
-          <h3>2. Add the plugin to your editor</h3>
-          <pre><code>import { grammarPlugin } from "prosemirror-languagetool";
+            <div class="demo-section">
+                <h2>Live Demo</h2>
+                <p class="demo-hint">
+                    Try editing the text below. Click on underlined errors to
+                    see suggestions.
+                </p>
+                <div class="demo-editor">
+                    <div id="editor"></div>
+                    <div id="content" style="display: none">
+                        <p>This is embarassing. But your always welcome.</p>
+                    </div>
+                </div>
+                <p class="demo-note">
+                    Grammar and spelling checks powered by
+                    <a href="https://languagetool.org/">LanguageTool</a>.
+                </p>
+            </div>
+
+            <div class="quick-start">
+                <h2>Quick Start</h2>
+                <div class="step">
+                    <h3>1. Install the package</h3>
+                    <pre><code>npm install prosemirror-languagetool</code></pre>
+                </div>
+                <div class="step">
+                    <h3>2. Add the plugin to your editor</h3>
+                    <pre><code>import { grammarPlugin } from "prosemirror-languagetool";
 
 grammarPlugin({
   languageToolCheckURL: "https://api.languagetoolplus.com/v2/check",
   language: "en-US",
   actionPopup: true,
 });</code></pre>
+                </div>
+                <div class="step">
+                    <h3>3. Include the stylesheet</h3>
+                    <pre><code>import "prosemirror-languagetool/style/prosemirror.css";</code></pre>
+                </div>
+            </div>
         </div>
-        <div class="step">
-          <h3>3. Include the stylesheet</h3>
-          <pre><code>import "prosemirror-languagetool/style/prosemirror.css";</code></pre>
-        </div>
-      </div>
-    </div>
 
-    <footer>
-      <a href="https://www.npmjs.com/package/prosemirror-languagetool">npm</a>
-      &middot;
-      <a href="https://git.furqansoftware.net/toph/prosemirror-languagetool"
-        >Source</a
-      >
-      &middot;
-      <a href="https://furqansoftware.com">Furqan Software</a>
-    </footer>
+        <footer>
+            <a href="https://www.npmjs.com/package/prosemirror-languagetool"
+                >npm</a
+            >
+            &middot;
+            <a
+                href="https://git.furqansoftware.net/toph/prosemirror-languagetool"
+                >Source</a
+            >
+            &middot;
+            <a href="https://furqansoftware.com">Furqan Software</a>
+        </footer>
 
-    <script type="module" src="./demo.js"></script>
-  </body>
+        <script type="module" src="./demo.js"></script>
+    </body>
 </html>
